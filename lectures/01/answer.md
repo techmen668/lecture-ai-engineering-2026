@@ -26,52 +26,53 @@
 
 - 結果：
 
-    1:デフォルトのgemini-3.5-flash-liteで質問を実行
-    (aie2026-exercises) @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec01) $ uv run python -m app.ask "LoRAとは何ですか？" 
-    [model] gemini-3.5-flash-lite [質問] LoRAとは何ですか？ [tokens] input=7 output=642 
-    LoRA（ローラ）とは、「Low-Rank Adaptation（低ランク適応）」の略で、AI（特に大規模言語モデルや画像生成AI）のファインチューニング（追加学習）を効率よく行うための技術です。一言でいうと、**「AIの頭脳全体を書き換えるのではなく、一部の小さなパーツだけを改造して、新しい才能を追加する技術」**です。
-    ### 1. 従来のファインチューニングとの違い
-    ・・中略・・
-    ### 2. LoRAの主なメリット
-    ・・中略・・
-    ### 3. 現在の利用シーン
-    ・・中略・・
-    ### まとめ
-    LoRAとは、**「AIのベースはそのままに、小さくて軽い『追加パーツ』を作ることで、誰でも手軽にAIを自分好みにカスタマイズできるようにした技術」**です。
+        1:デフォルトのgemini-3.5-flash-liteで質問を実行
+        (aie2026-exercises) @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec01) $ uv run python -m app.ask "LoRAとは何ですか？" 
+        [model] gemini-3.5-flash-lite [質問] LoRAとは何ですか？ [tokens] input=7 output=642 
+        LoRA（ローラ）とは、「Low-Rank Adaptation（低ランク適応）」の略で、AI（特に大規模言語モデルや画像生成AI）のファインチューニング（追加学習）を効率よく行うための技術です。一言でいうと、**「AIの頭脳全体を書き換えるのではなく、一部の小さなパーツだけを改造して、新しい才能を追加する技術」**です。
+        ### 1. 従来のファインチューニングとの違い
+        ・・中略・・
+        ### 2. LoRAの主なメリット
+        ・・中略・・
+        ### 3. 現在の利用シーン
+        ・・中略・・
+        ### まとめ
+        LoRAとは、**「AIのベースはそのままに、小さくて軽い『追加パーツ』を作ることで、誰でも手軽にAIを自分好みにカスタマイズできるようにした技術」**です。
 
-    2:環境変数でgemini-3.8-flashに変更して同じ質問を実行
-    (aie2026-exercises) @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec01) $ AIE_MODEL=gemini-3.8-flash uv run python -m app.ask "LoRAとは何ですか？" 
-    [model] gemini-3.8-flash[質問] LoRAとは何ですか？[tokens] input=7 output=815 
-    **LoRA（Low-Rank Adaptation：ロー・ランク・アダプテーション）**とは、大規模なAIモデル（LLMや画像生成AIなど）を、少ない計算コストとデータ量で効率的に追加学習（ファインチューニング）させるための技術です。2021年にMicrosoftの研究者らによって提案されました。分かりやすく理解するために、特徴やメリットを整理して解説します。
-    ### 1. なぜLoRAが必要なのか？（背景）
-    ・・中略・・
-    ### 2. LoRAの仕組み（例え話）
-    ・・中略・・
-    ### 3. LoRAの主なメリット
-    ・・中略・・
-    ### 4. 主な使われ方
-    ・・中略・・
-    ### まとめ
-    LoRAは、**「巨大なAIを、手軽に・安く・小さくカスタマイズできるようにした画期的な技術」**です。現在のアマチュアからプロまでのAIカスタマイズ文化を支える必須の技術となっています。
+        2:環境変数でgemini-3.8-flashに変更して同じ質問を実行
+        (aie2026-exercises) @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec01) $ AIE_MODEL=gemini-3.8-flash uv run python -m app.ask "LoRAとは何ですか？" 
+        [model] gemini-3.8-flash[質問] LoRAとは何ですか？[tokens] input=7 output=815 
+        **LoRA（Low-Rank Adaptation：ロー・ランク・アダプテーション）**とは、大規模なAIモデル（LLMや画像生成AIなど）を、少ない計算コストとデータ量で効率的に追加学習（ファインチューニング）させるための技術です。2021年にMicrosoftの研究者らによって提案されました。分かりやすく理解するために、特徴やメリットを整理して解説します。
+        ### 1. なぜLoRAが必要なのか？（背景）
+        ・・中略・・
+        ### 2. LoRAの仕組み（例え話）
+        ・・中略・・
+        ### 3. LoRAの主なメリット
+        ・・中略・・
+        ### 4. 主な使われ方
+        ・・中略・・
+        ### まとめ
+        LoRAは、**「巨大なAIを、手軽に・安く・小さくカスタマイズできるようにした画期的な技術」**です。現在のアマチュアからプロまでのAIカスタマイズ文化を支える必須の技術となっています。
 
-    3:temperatureを設定してgemini-3.5-flash-liteで同じ質問を実行
-    app/ask.py の23行目に TEMPERATURE = 0.2 を追加し、generate_content の config に types.GenerateContentConfig(temperature=TEMPERATURE) を渡すように変更した。実行時にモデル名とtemperatureも表示するようにした。
+        3:temperatureを設定してgemini-3.5-flash-liteで同じ質問を実行
+        app/ask.py の23行目に TEMPERATURE = 0.2 を追加し、generate_content の config に types.GenerateContentConfig(temperature=TEMPERATURE) を渡すように変更した。実行時にモデル名とtemperatureも表示するようにした。
 
-    @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec01) $  source /workspaces/lecture-ai-engineering-2026/.venv/bin/activate
-    (aie2026-exercises) @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec01) $ AIE_MODEL=gemini-3.5-flash-lite uv run python -m app.ask "LoRAとは何ですか？"
-    [model] gemini-3.5-flash-lite　[temperature] 0.2　[質問] LoRAとは何ですか？　[tokens] input=7 output=646
-    **LoRA（ロラ）**とは、大規模言語モデル（LLM）や画像生成AIなどのAIモデルを効率的にカスタマイズ（追加学習）するための技術の名前です。正式名称を **“Low-Rank Adaptation（低ランク適応）”** と言います。一言で言うと、**「AIの頭脳全体を書き換えるのではなく、付箋を貼るように一部だけを効率よくチューニングする技術」**です。
+        @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec01) $  source /workspaces/lecture-ai-engineering-2026/.venv/bin/activate
+        (aie2026-exercises) @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec01) $ AIE_MODEL=gemini-3.5-flash-lite uv run python -m app.ask "LoRAとは何ですか？"
+        [model] gemini-3.5-flash-lite　[temperature] 0.2　[質問] LoRAとは何ですか？　[tokens] input=7 output=646
+        **LoRA（ロラ）**とは、大規模言語モデル（LLM）や画像生成AIなどのAIモデルを効率的にカスタマイズ（追加学習）するための技術の名前です。正式名称を **“Low-Rank Adaptation（低ランク適応）”** と言います。一言で言うと、**「AIの頭脳全体を書き換えるのではなく、付箋を貼るように一部だけを効率よくチューニングする技術」**です。
 
-    ### LoRAの何がすごいの？（メリット）
-    ・・・中略・・・
-    ### どういう仕組み？（ざっくり解説）
-    ・・・中略・・・
-    ### どんなところで使われているの？
-    ・・・中略・・・
-    ### まとめ
-    LoRAとは、**「AIのカスタマイズを、誰でも・安価に・手軽にできるようにした革命的な技術」**です。現在の生成AIのコミュニティやビジネスにおいて、なくてはならない技術となっています。
+        ### LoRAの何がすごいの？（メリット）
+        ・・・中略・・・
+        ### どういう仕組み？（ざっくり解説）
+        ・・・中略・・・
+        ### どんなところで使われているの？
+        ・・・中略・・・
+        ### まとめ
+        LoRAとは、**「AIのカスタマイズを、誰でも・安価に・手軽にできるようにした革命的な技術」**です。現在の生成AIのコミュニティやビジネスにおいて、なくてはならない技術となっています。
 
 ～3つの回答、トークンの特徴を比較～
+
 Copilotによる特徴比較
 | 実行 | モデル・設定 | 入力トークン | 出力トークン | 回答の特徴 |
 |---|---|---:|---:|---|
