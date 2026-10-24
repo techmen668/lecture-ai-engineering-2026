@@ -31,6 +31,7 @@ def ask(question: str) -> str:
         config=types.GenerateContentConfig(temperature=TEMPERATURE),
     )
 
+    # 演習6: 応答の usage_metadata から入力・出力トークン数を表示
     usage = response.usage_metadata
     if usage is not None:
         print(f"[tokens] input={usage.prompt_token_count} output={usage.candidates_token_count}")
