@@ -109,3 +109,96 @@ Copilotによる特徴比較
     - Gemini の `client.chats.create()` でチャットを作成し、各質問を同じ `chat.send_message()` に送ることで会話履歴を保持する。空欄で Enter を押すと終了する。
     - 各応答の入力・出力トークン数も引き続き表示する。会話履歴はプログラムの実行中のみ保持される。
     - チャットを再利用して複数の質問が送られることをテストで確認し、全体のテスト13件が成功した。Gemini APIを使った実際の対話確認は未実施。
+    
+- 取り組んだレベル： 実装
+
+- 結果
+    「実装」実施前は、質問を実施して説明に気になることがあっても、履歴を残したまま詳しく聞くことができない。
+            (aie2026-exercises) @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec01) $ uv run python -m app.ask "LoRAとは何ですか？"
+            [model] gemini-3.5-flash-lite
+            [temperature] 0.2
+            [質問] LoRAとは何ですか？
+            [tokens] input=7 output=558
+            **LoRA（ローラ）**とは・・・中略・・・近でカスタマイズしやすくした立役者と言えます。
+            (aie2026-exercises) @techmen668 ➜ /workspaces/lecture-ai-engineeri
+
+
+    「実装」の課題にてapp/ask.pyを改修。会話履歴を保ったまま続けて質問できるようにした。実施前はモデルによる回答が終わるとプロンプト画面に戻っていたが、実施後は”続けて質問してください（空欄で終了）: ”が表示されていて続けて質問ができる。
+
+            (aie2026-exercises) @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec01) $ uv run python -m app.ask "LoRAとは何ですか？"
+            [model] gemini-3.5-flash-lite
+            [temperature] 0.2
+            [質問] LoRAとは何ですか？
+
+            **LoRA（ローラ）**とは、「Low-Rank Adaptation（低ランク適応）」の略で、AI（特に大規模言語モデルや画像生成AI）の**ファインチューニング（追加学習）を効率よく行うための技術**です。
+
+            一言でいうと、**「AIの頭脳全体を書き換えるのではなく、一部の小さなパーツだけを追加して賢くする手法」**です。
+
+            ・・中略・・
+            続けて質問してください（空欄で終了）: AIを自分好みにカスタマイズできる　という説明がまだあまりよくわからないのですが、具体例などを交えながら詳しく説明してもらえますか？
+            「自分好みにカスタマイズできる」という部分がピンとこなかったとのこと、承知いたしました！
+
+            画像生成AIやChatGPTなどのAIは、いわば**「世界中のあらゆる知識をなんとなく知っている、一般常識の塊のような優等生」**の状態です。
+            ・・中略・・
+
+            つまり、「AIを自分好みにカスタマイズする」とは、**AIという巨大なロボットに、「〇〇専用の追加チップ（LoRA）」をカチャッと差し込むだけで、特定の仕事や趣味に特化した専用機に生まれ変わらせること**なんです。
+
+            このイメージで伝わりましたでしょうか？
+            [tokens] input=663 output=780
+
+            続けて質問してください（空欄で終了）: 
+
+- やったこと
+    変更前は`ask` で「質問を1回送って回答テキストを返す」関数だったものを、`run_chat`を用いて「最初の質問を送り、回答を表示し、次の質問を受け付ける」という形態に変更した。会話用の `run_chat` 関数を追加し、起動時にそちらを呼ぶようにしたことで続けて質問ができるようになった。
+
+    実装したコードの解説
+        ### 変更前：1回質問して終了
+
+            ```python
+            def ask(question: str) -> str:
+                client = genai.Client(api_key=get_api_key())
+                response = client.models.generate_content(
+                    model=MODEL,
+                    contents=question,
+                )
+
+                return response.text
+            ```
+        この関数は、質問を1回送信して回答を返すだけで、次の質問を受け取る処理や、前のやり取りを維持する処理は存在しない。
+
+        ### 変更後：チャットを作り、繰り返し質問を受け付ける
+
+            ```python
+            def run_chat(initial_question: str) -> None:
+                client = genai.Client(api_key=get_api_key())
+                chat = client.chats.create(
+                    model=MODEL,
+                    config=types.GenerateContentConfig(temperature=TEMPERATURE),
+                )
+
+                question = initial_question
+                while question:
+                    response = chat.send_message(question)
+                    print(response.text)
+
+                    # トークン数の表示など
+
+                    question = input("\n続けて質問してください（空欄で終了）: ").strip()
+            ```
+
+        - `client.chats.create(...)` でチャットを作成。通常の `generate_content(...)` と異なり、同じチャットにメッセージを送り続けるため、会話形式でやり取りできる。
+        - `question = initial_question` で最初の質問をセットする。
+        - `while question:` で、質問が空でない間、送信・回答表示・次の質問の入力を繰り返す。
+        - `chat.send_message(question)` で質問をチャットに送り、`input(...).strip()` で次の質問を受け取る。
+        - 空欄を入力すると `question` が空文字列になり、ループが終了する。
+        - `EOFError` が起きたときも `break` で終了する。
+
+        さらに、起動処理では、質問を1回送るのではなく、会話用の関数を呼び出している。
+
+        ```python
+        run_chat(args.question)
+        ```
+チャットセッションの作成、ループ、次の質問の入力処理、および `run_chat` の呼び出しによって連続質問を実現している。`ask` 関数自体は現在も1回分の質問に回答する用途で残っている。
+
+-気づき・疑問
+pythonコードの中の関数や細かい処理を変更することで続けて質問ができるようになる、というチャット機能の性能向上ができた。個人でアプリ開発をしたりRAGを実装するうえでも今回実施したことは活かせるのではと思う。より特定の質問に対しての精度を向上させたり、回答に特徴を持たせるなどといったことも、pythonファイルの中の関数や処理の変更で出来ないか気になっている
