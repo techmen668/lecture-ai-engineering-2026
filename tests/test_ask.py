@@ -21,12 +21,16 @@ def test_ask_prints_input_and_output_token_counts(monkeypatch, capsys):
 
     monkeypatch.setattr(ask.genai, "Client", lambda api_key: FakeClient())
     monkeypatch.setattr(ask, "get_api_key", lambda: "test-key")
+    monkeypatch.setattr(ask.time, "perf_counter", iter([1.0, 2.25]).__next__)
 
     assert ask.ask("質問") == "回答"
     assert call["model"] == ask.MODEL
     assert call["contents"] == "質問"
     assert call["config"].temperature == ask.TEMPERATURE == 0.2
-    assert capsys.readouterr().out == "[tokens] input=12 output=7\n"
+    assert capsys.readouterr().out == (
+        "[response_time] 1.25 sec\n"
+        "[tokens] input=12 output=7\n"
+    )
 
 
 def test_run_chat_reuses_chat_for_follow_up_questions(monkeypatch, capsys):
@@ -55,6 +59,11 @@ def test_run_chat_reuses_chat_for_follow_up_questions(monkeypatch, capsys):
     monkeypatch.setattr(ask.genai, "Client", lambda api_key: FakeClient())
     monkeypatch.setattr(ask, "get_api_key", lambda: "test-key")
     monkeypatch.setattr("builtins.input", lambda prompt: next(questions))
+    monkeypatch.setattr(
+        ask.time,
+        "perf_counter",
+        iter([1.0, 1.5, 2.0, 3.25]).__next__,
+    )
 
     ask.run_chat("最初の質問")
 
@@ -62,8 +71,10 @@ def test_run_chat_reuses_chat_for_follow_up_questions(monkeypatch, capsys):
     assert create_call["config"].temperature == ask.TEMPERATURE
     assert sent_messages == ["最初の質問", "続きの質問"]
     assert capsys.readouterr().out == (
+        "[response_time] 0.50 sec\n"
         "回答1\n"
         "[tokens] input=12 output=7\n"
+        "[response_time] 1.25 sec\n"
         "回答2\n"
         "[tokens] input=12 output=7\n"
     )

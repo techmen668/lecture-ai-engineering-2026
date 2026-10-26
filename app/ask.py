@@ -12,6 +12,7 @@
 """
 
 import argparse
+import time
 
 from google import genai
 from google.genai import errors
@@ -21,16 +22,19 @@ from app.config import MODEL, api_error_message, get_api_key
 
 # 講座に固有の質問。正しい答えは data/glossary.json の homework-levels にある
 DEFAULT_QUESTION = "AIE2026の講座の宿題にある「3レベル」とは何ですか？"
-TEMPERATURE = 0.2
+TEMPERATURE = 0.7
 
 
 def ask(question: str) -> str:
     client = genai.Client(api_key=get_api_key())
+    # 発展課題: モデルやtemperatureごとの比較用に、API応答時間を計測する。
+    started_at = time.perf_counter()
     response = client.models.generate_content(
         model=MODEL,
         contents=question,
         config=types.GenerateContentConfig(temperature=TEMPERATURE),
     )
+    print(f"[response_time] {time.perf_counter() - started_at:.2f} sec")
 
     # 演習6: 応答の usage_metadata から入力・出力トークン数を表示
     usage = response.usage_metadata
@@ -49,7 +53,10 @@ def run_chat(initial_question: str) -> None:
 
     question = initial_question
     while question:
+        # 発展課題: モデルやtemperatureごとの比較用に、API応答時間を計測する。
+        started_at = time.perf_counter()
         response = chat.send_message(question)
+        print(f"[response_time] {time.perf_counter() - started_at:.2f} sec")
         print(response.text)
 
         usage = response.usage_metadata
