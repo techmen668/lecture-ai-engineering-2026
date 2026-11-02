@@ -92,6 +92,7 @@ uv run pytest -q
 - 一覧に無い → `app/agent.py` で登録していない
 - 一覧にはあるが呼ばれない → docstring に使う場面を具体的に書く。`INSTRUCTIONS` に「確認問題を求められたら make_quiz を使う」と足す
 
+
 ### 6. 提出して、Codespaces を停止する
 
 `lectures/03/answer.md` を書き、`lec03` → 自分の fork の `main` へ PR を出します。**base repository が自分の fork になっていることを確認してください。**
