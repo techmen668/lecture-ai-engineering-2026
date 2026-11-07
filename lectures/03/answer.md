@@ -62,6 +62,84 @@
 
 ## 宿題
 
+- 取り組んだレベル：基礎 
+
+
+- やったこと
+
+        Search_glossaryのdocstringを書き換えた。
+        tools.py 36行目にて「調べたい用語を1つだけ入れる」を「関連する用語をまとめて入れる」と書き換えた。
+
+
+- 結果
+
+書き換え前「調べたい用語を1つだけ入れる」
+
+        @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec03) $  source /workspaces/lecture-ai-engineering-2026/.venv/bin/activate
+        (aie2026-exercises) @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec03) $ uv run python -m app.agent --trace "LoRAとQLoRAの違いは？"
+
+        LoRAとQLoRAの違いは以下のとおりです。
+
+        * **LoRA**: 事前学習済みの重みは固定したまま、重みの更新分を小さな低ランク行列（2つの小さな行列の積）で表し、その部分だけを学習するPEFT（Parameter-Efficient Fine-Tuning）手法です。これにより、学習するパラメータ数を大幅に削減できます。
+        * **QLoRA**: LoRAの考え方をベースに、さらにベースモデルの重みを4ビットなどに**量子化**（Quantization）してメモリを極限まで節約した手法です。これにより、より大きなモデルをより小さなGPUメモリで効率よく学習できるようになります。
+
+        （関連する回：第2回）
+
+        --- trace ---
+        [tool call]   search_glossary({'query': 'LoRA'})
+        [tool call]   search_glossary({'query': 'QLoRA'})
+        [tool return] search_glossary -> [{"term": "LoRA", "lecture": 2, "definition": "事前学習済みの重みは固定したまま、重みの更新分を2つの小さな行列の積（低ランク行列）で表し、その小さな行列だけを学習するPEFT手法。学習するパラ…
+        [tool return] search_glossary -> [{"term": "QLoRA", "lecture": 2, "definition": "ベースモデルの重みを4ビットなどに量子化してメモリを節約したうえで、LoRAで学習する手法。より大きなモデルを小さなGPUで扱える。本講座の第2…
+        [usage] RunUsage(cost=Decimal('0.0008704'), details={'text_prompt_tokens': 1318}, input_text_tokens=1318, input_tokens=1318, output_tokens=190, requests=2, tool_calls=2)
+
+
+書き換え後「関連する用語をまとめて入れる」
+
+        (aie2026-exercises) @techmen668 ➜ /workspaces/lecture-ai-engineering-2026 (lec03) $ uv run python -m app.agent --trace "LoRAとQLoRAの違いは？"
+
+        LoRAとQLoRAの違いは、ベースモデルの重みをそのまま使うか、量子化してメモリを節約するかにあります。
+
+        * **LoRA（Low-Rank Adaptation）**
+        事前学習済みの重みはそのまま（16ビットなど）固定し、追加の小さな低ランク行列（アダプタ）だけを学習することで、効率的に微調整を行うPEFT手法です。学習パラメータや保存ファイルを大幅に削減できます。
+        * **QLoRA（Quantized LoRA）**
+        ベースモデルの重みを4ビットなどの低ビットに量子化して読み込み、メモリ消費量を劇的に抑えた状態でLoRAの学習を行う手法です。これにより、さらに大きなモデルを限られたGPU環境でも動かせるようになります。
+
+        （関連する回：第2回）
+
+        --- trace ---
+        [tool call]   search_glossary({'query': 'LoRA QLoRA'})
+        [tool return] search_glossary -> [{"term": "LoRA", "lecture": 2, "definition": "事前学習済みの重みは固定したまま、重みの更新分を2つの小さな行列の積（低ランク行列）で表し、その小さな行列だけを学習するPEFT手法。学習するパラ…
+        [usage] RunUsage(cost=Decimal('0.0007821'), details={'text_prompt_tokens': 1007}, input_text_tokens=1007, input_tokens=1007, output_tokens=192, requests=2, tool_calls=1)
+
+
+書き換え前と書き換え後の相違点
+
+--- trace ---の欄をそれぞれ確認すると
+
+        検索回数と検索語　[tool call]の行
+        ・変更前：search_glossary({'query': 'LoRA'})とsearch_glossary({'query': 'QLoRA'})の2行
+        ・変更後：search_glossary({'query': 'LoRA QLoRA'})の1行
+
+        ツール呼び出し数：最後の[usage]のtool_calls
+        ・変更前：tool_calls=2
+        ・変更後：tool_calls=1
+
+        LLM呼び出し数：[usage]のrequests
+        変更前・変更後ともにrequests=2
+
+        回答内容：
+        「調べたい用語を1つだけ入れる」を「関連する用語をまとめて入れる」いずれの回答も大きな変更点はないが、「関連する用語をまとめて入れる」と記述した際には回答の冒頭に「ベースモデルの重みをそのまま使うか、量子化してメモリを節約するかにあります。」という形で一言で要約した説明が入っている点が特徴的。
+
+- 気づき・疑問
+
+        今回の実施結果を見ると、「用語を1つだけ入れる」「関連する用語をまとめて入れる」というdocstringの中の文言を変えて用語集からの調べ方と使い方を変化させはしたものの、出てくる回答内容自体にさほど大きな本質的な違いは見られなかった。ただし、---trace---のパラメータをよく見てみると、検索の仕方が2回別々にしていたものを1度でまとめて実施するようになるなど内部での呼び出し処理の構造には変化があった。どんな改変を加えれば、構造の変化が回答の仕方に対しても影響を及ぼす程度までになるのか？というのは文言を変える、コード処理自体を変える、といった形で検証の余地があるように感じた。
+
+        ツールの呼び出し数tool_callsはdocstring変更前が2、変更後は1なのに、LLM呼び出し数は変更前・変更後ともにrequests=2はモデルとLLMの関連にどんな関係性があるのか疑問に思った。変更後のrequestsが2であれば、変更前のtool_callsが2である以上、requestsは4になりそうだと素朴に思った。
+
+
+
+
+
 - 取り組んだレベル：基礎 / 実装 / 発展
 - やったこと：
 - 結果：
